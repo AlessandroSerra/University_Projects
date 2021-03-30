@@ -1,5 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import time
+
+t_s = time.time()
 
 ## NOTE: definiamo la ODE del pendolo anarmonico
 def f(theta):
@@ -65,6 +68,8 @@ ax1.plot(t, cinetica, label = 'E cinetica')
 ax1.plot(t, potenziale, label = 'E potenziale')
 ax1.plot(t, Etot, label = 'E meccanica')
 plt.legend()
+
+print(time.time()-t_s)
 
 ## NOTE: per due figure distinte va usato un solo plt.show, sennò non apre la seconda
 plt.show()

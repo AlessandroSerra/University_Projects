@@ -10,7 +10,7 @@ pi_greco = np.pi
 x_list = []
 y_list = []
 n = 0               #contatore dei cicli
-N = 10000000           #cicli da fare
+N = 1000          #cicli da fare
 
 np.random.seed()    #decide numeri casuali in base allo stato del computer rendendoli casuali
 
@@ -38,4 +38,5 @@ ax.plot(x_list,y_list, linewidth = 0, marker = '.', markersize = 1)
 ax.plot(x_circle,y_circle, color = 'r')
 
 
-plt.show()
+#plt.show()
+print(time.time() - start_time)
