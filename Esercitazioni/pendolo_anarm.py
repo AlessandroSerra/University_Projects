@@ -42,16 +42,20 @@ x = [x0]
 v = [v0]
 
 ## NOTE: ciclo per eulero
-#for i in range(N):
-#    xnew, vnew = eulero(x[i], v[i], f(x[i]), tau)
-#    x.append(xnew)
-#    v.append(vnew)
+for i in range(N):
+    xnew, vnew = eulero(x[i], v[i], f(x[i]), tau)
+    x.append(xnew)
+    v.append(vnew)
+
+#print(x,v)
 
 ## NOTE: ciclo per velocity_verlet
+"""
 for i in range(N):
     xnew, vnew = velocity_verlet(x[i], v[i], tau)
     x.append(xnew)
     v.append(vnew)
+"""
 
 ## NOTE: valori di energia meccanica del sistema
 cinetica = [K(v[i]) for i in range(len(x))]
@@ -63,11 +67,13 @@ ax.plot(t, x, label = 'posizione')
 ax.plot(t, v, label = 'velocità')
 plt.legend()
 
+"""
 fig1, ax1 = plt.subplots()
 ax1.plot(t, cinetica, label = 'E cinetica')
 ax1.plot(t, potenziale, label = 'E potenziale')
 ax1.plot(t, Etot, label = 'E meccanica')
 plt.legend()
+"""
 
 print(time.time()-t_s)
 
