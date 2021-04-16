@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.constants import g
 
 ## NOTE: definiamo la ODE del pendolo
 def f(theta):
-    g = 9.81        #vlore dell'acc di gtìravità
     l = .1         #lunghezza della corda
     return - g/l * np.sin(theta)
 
