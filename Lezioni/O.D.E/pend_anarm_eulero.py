@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.constants import g
+from scipy.constants import g       #accelerazione di gravità
 
 ## NOTE: definiamo la ODE del pendolo
 def f(theta):
