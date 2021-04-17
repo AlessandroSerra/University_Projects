@@ -7,7 +7,7 @@ con i nuclei d'oro.
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.constants as spc
-import vec2d as v2d                 #importiamo la classe vec2d
+import vec2d as v2d                #importiamo la classe vec2d
 
 ## NOTE: numero atomico rispettivamente dell'elio e dell'oro
 Ze, Zo = 2, 79
@@ -45,13 +45,13 @@ theta = []
 Nparticles = 1000
 
 for i in range(Nparticles):
-    r0 = v2d.vec2d(-100 * dis, 100 *(2 * np.random.rand() - 1) * dis) #rand() restituisce un numero tra 0 ed 1 ma noi lo vogliamo tra -100 e 100 d
+    r0 = v2d.vec2d(-100 * dis, 100 * (2 * np.random.rand() - 1) * dis) #rand() restituisce un numero tra 0 ed 1 ma noi lo vogliamo tra -100 e 100 d
     v0 = v2d.vec2d(vel, 0)        #all'inizio vogliamo moto solo lungo x
-
     Nsteps = 2 * int(r0.mod()  / dis)
 
     t, r, v = solve(r0, v0, tau, Nsteps)
     theta.append(v0.get_angle(v[-1]))
+
 
 ## NOTE: vogliamo vedere come sono distribuiti gli angoli theta delle N particelle alpha
 fig, ax = plt.subplots()
@@ -67,5 +67,6 @@ ax.plot(0, 0, marker = '.', color = 'k')        #disegnamo l'atomo d'oro nell'or
 ax.set_xlabel('x (d)')
 ax.set_ylabel('y (d)')
 '''
+
 #plt.legend()
 plt.show()
