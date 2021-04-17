@@ -7,7 +7,7 @@ con i nuclei d'oro.
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.constants as spc
-import vec2d as v2d                #importiamo la classe vec2d
+import vec2d as v2d                #importiamo la classe vec2d creata in vec2d.py (deve essere nella stessa cartella)
 
 ## NOTE: numero atomico rispettivamente dell'elio e dell'oro
 Ze, Zo = 2, 79
@@ -29,11 +29,11 @@ def step(r, v, tau):                            #velocity-verlet
     vnew = v + (F(r) + F(rnew)) * tau / 2
     return rnew, vnew
 
-## NOTE: funzione che esegue vari step del velocity verlet
+## NOTE: funzione che esegue i vari step del velocity verlet
 def solve(r0, v0, tau, Nsteps):
     t, r, v = [0], [r0], [v0]
 
-    for i in range(Nsteps - 1):         #dato che abbiamo già onserito il primo elemento nelle liste
+    for i in range(Nsteps - 1):         #dato che abbiamo già inserito il primo elemento nelle liste
         rnew, vnew = step(r[i], v[i], tau)
         t.append(t[i] + tau)
         r.append(rnew)
@@ -45,8 +45,8 @@ theta = []
 Nparticles = 1000
 
 for i in range(Nparticles):
-    r0 = v2d.vec2d(-100 * dis, 100 * (2 * np.random.rand() - 1) * dis) #rand() restituisce un numero tra 0 ed 1 ma noi lo vogliamo tra -100 e 100 d
-    v0 = v2d.vec2d(vel, 0)        #all'inizio vogliamo moto solo lungo x
+    r0 = v2d.vec2d(-100 * dis, 100 * (2 * np.random.rand() - 1) * dis)  #rand() restituisce un numero tra 0 ed 1 ma noi lo vogliamo tra -100 e 100 d
+    v0 = v2d.vec2d(vel, 0)                                              #all'inizio vogliamo moto solo lungo x
     Nsteps = 2 * int(r0.mod()  / dis)
 
     t, r, v = solve(r0, v0, tau, Nsteps)
@@ -58,12 +58,12 @@ fig, ax = plt.subplots()
 ax.hist(theta, histtype = 'step')       #creiamo un istogramma
 ax.set_yscale('log')                    #usiamo scala log per vedere più suddivisioni
 ax.set_xlabel('$\\theta$')
-ax.set_ylabel('counts')
+ax.set_ylabel('Counts')
 
 '''
 fig, ax = plt.subplots()
 ax.plot([pos.x / dis for pos in r], [pos.y / dis for pos in r])
-ax.plot(0, 0, marker = '.', color = 'k')        #disegnamo l'atomo d'oro nell'origine
+ax.plot(0, 0, marker = '.', color = 'k')                            #disegnamo l'atomo d'oro nell'origine
 ax.set_xlabel('x (d)')
 ax.set_ylabel('y (d)')
 '''

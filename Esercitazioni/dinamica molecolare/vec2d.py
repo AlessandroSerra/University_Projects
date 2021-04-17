@@ -40,20 +40,3 @@ class vec2d:
 
     def get_angle(self, other):
         return np.arccos(self * other / (self.mod() * other.mod()))
-
-
-'''
-v = vec2d(3, 4)
-print(v.x)
-print(v.y)
-print(v.mod())
-u = v.unitary()
-print(u.x, u.y)
-print(u.mod())          #test vari
-print(u+v)
-print(u-v)
-print(v*2)
-print(v.mod() * 2)
-print(v*u)
-print(v/2)
-'''
