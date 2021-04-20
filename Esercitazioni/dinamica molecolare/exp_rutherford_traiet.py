@@ -46,6 +46,9 @@ def solve(r0, v0, tau, Nsteps):
     return t, r, v
 
 Nparticles = 1
+r_list = []
+v_list = []
+imp_list = np.linspace(-100,100,1000)
 
 for i in range(Nparticles):
     r0 = v2d.vec2d(-100 * dis, 100 * (2 * np.random.rand() - 1) * dis)  #rand() restituisce un numero tra 0 ed 1 ma noi lo vogliamo tra -100 e 100 d
