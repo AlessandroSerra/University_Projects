@@ -40,7 +40,7 @@ for i in range(Nparticels):
     Nsteps = 2 * int(r0.mod()/d)
 
     t, r, v = solve(r0, v0, tau, Nsteps)
-    theta.append(v0.get_angle(v[-1]))
+    theta.append(v0.get_angle(v[-1], 'rad'))
 
 #lo uso se ho una sola particella
 #fig, ax = plt.subplots()

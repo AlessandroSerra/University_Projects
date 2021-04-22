@@ -37,11 +37,8 @@ class vec2d:
         return '(' + str(self.x) + ',' + str(self.y) + ')'
 
     def get_angle(self, other, unit):
-        if unit == 'rad':
-            return np.arccos(self * other / (self.mod() * other.mod()))
-
-        elif unit 'deg':
+        if unit == 'deg':
             return (np.arccos(self * other / (self.mod() * other.mod()))) * 180 / np.pi
 
         else:
-            print('Invalid unit, pick rad or deg\n')
+            return np.arccos(self * other / (self.mod() * other.mod()))

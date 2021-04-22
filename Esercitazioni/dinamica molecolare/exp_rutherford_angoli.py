@@ -58,13 +58,7 @@ for i in range(Nparticles):
     Nsteps = 2 * int(r0.mod()  / dis)
 
     t, r, v = solve(r0, v0, tau, Nsteps)
-    theta.append(v0.get_angle(v[-1]))
-
-
-## NOTE: vogliamo vedere come sono distribuiti gli angoli theta delle N particelle alpha
-fig, ax = plt.subplots()
-ax.hist(theta, histtype = 'step', bins = 30, label = 'Data')       #creiamo un istogramma
-ax.set_yscale('log')                    #usiamo scala log per vedere più suddivisioni
+    theta.append(v0.get_angle(v[-1], 'rad'))
 
 ## NOTE: fittiamo i dati dell'istogramma
 counts, bins = np.histogram(theta, bins = 30)
@@ -74,21 +68,16 @@ print(p, '\n', cov)
 x = np.linspace(bins[0], bins[1], 1000)
 y = fit(x, p[0], p[1])
 
-
+## NOTE: vogliamo vedere come sono distribuiti gli angoli theta delle N particelle alpha
+fig, ax = plt.subplots()
+ax.hist(theta, histtype = 'step', bins = 30, label = 'Data')       #creiamo un istogramma
+ax.set_yscale('log')                    #usiamo scala log per vedere più suddivisioni
 ax.plot(x, y, label = 'fit', linewidth = 1)
 ax.set_xlabel('$\\theta$')
 ax.set_ylabel('Counts')
 
 t_f = time.time() - t_s
 print(t_f, 'secondi')
-
-'''
-fig, ax = plt.subplots()
-ax.plot([pos.x / dis for pos in r], [pos.y / dis for pos in r])
-ax.plot(0, 0, marker = '.', color = 'k')                            #disegnamo l'atomo d'oro nell'origine
-ax.set_xlabel('x (d)')
-ax.set_ylabel('y (d)')
-'''
 
 plt.legend()
 plt.show()
