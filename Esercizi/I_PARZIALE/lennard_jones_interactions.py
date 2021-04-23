@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.constants as spc
 mass_of_argon = 39.948 # amu
-number_of_particles = int(input('iserire il numero di atomi di argon da fare interagire:\t'))
 
 def lj_force(r, epsilon, sigma):
     """
@@ -160,8 +159,8 @@ def run_md(dt, number_of_steps, initial_temp, x):
         The positions for all of the particles 
         throughout the simulation (Å)
     """
-    positions = np.zeros((number_of_steps, number_of_particles))
-    v = init_velocity(initial_temp, number_of_particles)
+    positions = np.zeros((number_of_steps, 3))
+    v = init_velocity(initial_temp, 3)
     a = get_accelerations(x)
     for i in range(number_of_steps):
         x = update_pos(x, v, a, dt)
