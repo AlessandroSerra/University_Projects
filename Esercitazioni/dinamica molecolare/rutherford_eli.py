@@ -42,16 +42,18 @@ for i in range(Nparticels):
     t, r, v = solve(r0, v0, tau, Nsteps)
     theta.append(v0.get_angle(v[-1], 'rad'))
 
-#lo uso se ho una sola particella
-#fig, ax = plt.subplots()
-#ax.plot([pos.x /d for pos in r], [pos.y / d for pos in r])
-#ax.plot(0, 0, marker=".", color= "y")
-#plt.show()
+#o uso se ho una sola particella
+fig, ax = plt.subplots()
+ax.plot([pos.x /d for pos in r], [pos.y / d for pos in r])
+ax.plot(0, 0, marker=".", color= "b")
+plt.show()
 
+'''
 fig, ax = plt.subplots()
 ax.hist(theta, histtype = "step")
 ax.set_yscale("log")
 ax.set_xlabel("$\\theta$")
 ax.set_ylabel("Counts")
+'''
 
 plt.show()

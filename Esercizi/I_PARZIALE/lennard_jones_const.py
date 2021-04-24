@@ -14,8 +14,8 @@ implement the lj fit to get the constants
 '''
 
 radius_list = np.arange(3.5, 7, 0.5)
-energy_list = np.array()
-print(radius_list)
+energy_list = np.array([0.1374, -0.0195, -0.0218, -0.0133, -0.0076, -0.0043, -0.0025])
+energy_err_list = energy_list * 0.1
 
 def lj_potential(r, epsilon, sigma):
     '''
@@ -46,4 +46,17 @@ the scipy function curve_fit should return the best value that fits the
 lj_potential curve
 '''
 
-p, cov = spo.curve_fit(lj_potential, r, epsilon, sigma)
+p, cov = spo.curve_fit(lj_potential, radius_list, energy_list, sigma = energy_err_list)
+print('best value for sigma: ', p[0])
+print('best value for epsilon: ', p[1])
+
+fig, ax = plt.subplots()
+ax.errorbar(radius_list, energy_list, yerr = energy_err_list, marker = 'o', ls = '', label = 'exp values lj potential')
+ax.set_xlabel('r/A')
+ax.set_ylabel('E/eV')
+
+x_list = np.linspace(3.5, 7, 1000)
+ax.plot(x_list, lj_potential(x_list, p[0], p[1]), label = 'fit lj potential')
+
+plt.legend()
+plt.show()

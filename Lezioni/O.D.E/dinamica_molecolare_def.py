@@ -78,12 +78,13 @@ def get_accelerations(positions):
     accel_x = np.zeros((positions.size, positions.size))
     for i in range(0, positions.size - 1):
         for j in range(i + 1, positions.size):
-            r_x = positions[j] - positions[i]
+            r_x = (positions[j] - positions[i])
             rmag = np.sqrt(r_x * r_x)
-            force_scalar = lj_force(rmag, 0.0103, 3.4)
+            force_scalar = lj_force(r_x, 0.0103, 3.4)
             force_x = force_scalar * r_x / rmag
             accel_x[i, j] = force_x / mass_of_argon
             accel_x[j, i] = - force_x / mass_of_argon
+
     return np.sum(accel_x, axis=0)
 
 def update_pos(x, v, a, dt):
@@ -163,8 +164,8 @@ def run_md(dt, number_of_steps, initial_temp, x):
         The positions for all of the particles 
         throughout the simulation (Å)
     """
-    positions = np.zeros((number_of_steps, 3))
-    v = init_velocity(initial_temp, 3)
+    positions = np.zeros((number_of_steps, 4))
+    v = init_velocity(initial_temp, 4)
     a = get_accelerations(x)
     for i in range(number_of_steps):
         x = update_pos(x, v, a, dt)
@@ -174,7 +175,7 @@ def run_md(dt, number_of_steps, initial_temp, x):
         positions[i, :] = x
     return positions
 
-x = np.array([1, 5, 10])
+x = np.array([1, 5, 10, 15])
 sim_pos = run_md(0.1, 10000, 300, x)
     
 for i in range(sim_pos.shape[1]):
