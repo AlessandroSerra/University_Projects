@@ -44,7 +44,10 @@ class vec2d:
             return (np.arccos(self * other / (self.mod() * other.mod()))) * 180 / np.pi
 
         else:
-            print('Invalid unit, pick rad or deg\n')
+            return False
+
+    def get_distance(self, other):
+        return np.sqrt((self.x . other.x)**2 + (self.y - other.y)**2)
 
     def __str__(self):
         return '(' + str(self.x) + ',' + str(self.y) + ')'

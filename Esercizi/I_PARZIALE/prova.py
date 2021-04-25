@@ -1,6 +1,9 @@
 import numpy as np
+import vec2d as v
 
-a = [[1, 1, 1],
-[1, 1, 1], [1, 1, 1]]
+N_particles = 2
+N_steps = 1
 
-print(np.sum(a, axis = 0))
+int[][] matrix = int[4][5]
+
+print(pos.shape)
