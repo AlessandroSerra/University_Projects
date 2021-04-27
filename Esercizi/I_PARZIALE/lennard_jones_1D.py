@@ -10,7 +10,7 @@ L_box = 20                  #Angstron
 
 ## NOTE: variabili della simulazione
 #N_particles = int(input('Inserire il numero di particelle da far interagire\n'))
-N_particles = 30
+N_particles = 3
 N_steps = 100
 tau = .1                    #femtosecondi
 initial_T = 300             #Kelvin
@@ -53,6 +53,7 @@ def update_pos(x, v, a, tau):
 
 def update_vel(v, a, anew, tau):
 
+    print(v)
     return v + 0.5 * (a + anew) * tau
 
 ## NOTE: funzione che fa girare velocity-verlet
