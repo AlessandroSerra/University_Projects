@@ -47,10 +47,10 @@ def solve(r0, v0, tau, Nsteps):
     return t, r, v
 
 def fit(theta, N, alpha):
-    return N * Fc * alpha_mass / (2 * E * dis * np.sin(theta / 2)**alpha)
+    return N/ (2 * np.sin(theta / 2)**alpha)
 
 theta = []
-Nparticles = 1000
+Nparticles = 10000
 
 for i in range(Nparticles):
     r0 = v2d.vec2d(-100 * dis, 100 * (2 * np.random.rand() - 1) * dis)  #rand() restituisce un numero tra 0 ed 1 ma noi lo vogliamo tra -100 e 100 d
@@ -65,7 +65,7 @@ counts, bins = np.histogram(theta, bins = 30)
 bins = bins[1:] - (bins[1] - bins[0]) / 2
 p, cov = spo.curve_fit(fit, bins, counts, p0 = [1, 2], sigma = counts)
 print(p, '\n', cov)
-x = np.linspace(bins[0], bins[1], 1000)
+x = np.linspace(bins[0], bins[-1], 1000)
 y = fit(x, p[0], p[1])
 
 ## NOTE: vogliamo vedere come sono distribuiti gli angoli theta delle N particelle alpha

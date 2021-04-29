@@ -22,7 +22,9 @@ Fc = Ze * Zo * spc.e**2 / (4 * np.pi * spc.epsilon_0 * alpha_mass)    #carica el
 E = 5e5 * spc.electron_volt                                           #energia di 5MeV convertita in Joule
 dis = Fc / E * alpha_mass                                              #distanza minima tra particella sparata e nucleo
 vel = np.sqrt(2 * E / alpha_mass)
+print('velocità:' ,vel)
 tau = dis / vel
+print('tau:', tau)
 
 def F(r):
     mod = r.mod()
@@ -42,6 +44,7 @@ def solve(r0, v0, tau, Nsteps):
         t.append(t[i] + tau)
         r.append(rnew)
         v.append(vnew)
+        print('posizioni', r[i] / dis)
 
     return t, r, v
 
@@ -52,8 +55,10 @@ imp_list = np.linspace(-100,100,1000)
 
 for i in range(Nparticles):
     r0 = v2d.vec2d(-100 * dis, 100 * (2 * np.random.rand() - 1) * dis)  #rand() restituisce un numero tra 0 ed 1 ma noi lo vogliamo tra -100 e 100 d
+    print('posizione iniziale:', r0)
     v0 = v2d.vec2d(vel, 0)                                              #all'inizio vogliamo moto solo lungo x
-    Nsteps = 2 * int(r0.mod()  / dis)
+    Nsteps = 10
+    print('Nsteps:', Nsteps)
 
     t, r, v = solve(r0, v0, tau, Nsteps)
 
@@ -65,7 +70,8 @@ ax.set_xlabel('x (d)')
 ax.set_ylabel('y (d)')
 
 t_f = time.time() - t_s
-print(t_f, 'secondi')
+#print(t_f, 'secondi')
+print('parametro di impatto:', dis)
 
 plt.legend()
 plt.show()
