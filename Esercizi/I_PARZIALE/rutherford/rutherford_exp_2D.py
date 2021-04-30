@@ -20,7 +20,7 @@ def init_values(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
 
     for k in range(N_particles):
         
-        pos_y = 100 * (2 * np.random.rand() - 1) * impact_parameter
+        pos_y = 10 * (2 * np.random.rand() - 1) * impact_parameter
         pos_array[k, 0] = v2d.vec2d(pos_x, pos_y)
         vel_array[k, 0] = v2d.vec2d(vel_x, 0)
 
@@ -98,7 +98,7 @@ def run_rutherford_exp2D(N_particles, N_steps, Ze, Zo, energy, alpha_mass, tau):
 ## NOTE: main 
 
 ## NOTE: parametri di simulazione
-N_particles = 50
+N_particles = 10000
 N_steps = 200
 energy = 5e5 * spc.electron_volt                        #energia di 5MeV convertita in Joule
 tau = 9.3e-20
@@ -107,7 +107,7 @@ tau = 9.3e-20
 Ze, Zo = 2, 79
 alpha_mass = 2 * spc.proton_mass + 2 * spc.neutron_mass 
 
-what_to_do = input('Inserire "t" per le traiettorie e "a" per gli angoli')
+what_to_do = input('Inserire "t" per le traiettorie e "a" per gli angoli:\t')
 
 pos_array, vel_array, theta_list, impact_parameter = run_rutherford_exp2D(N_particles, N_steps, Ze, Zo, energy, alpha_mass, tau)
 x_fit, y_fit = scattering_angles_curve_fitting(theta_list, N_particles)

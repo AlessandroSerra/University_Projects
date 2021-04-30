@@ -5,8 +5,11 @@ import scipy.optimize as spo
 import vec3d as v3d
 import time
 
-t_s = time.time()
+t_s = time.time()       #tempo di inizio simulazione
 
+'''
+Funzioni necessarie ad eseguire il programma
+'''
 
 def init_values(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
 
@@ -15,10 +18,10 @@ def init_values(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
     impact_parameter = Ze * Zo * spc.e**2 / (4 * np.pi * spc.epsilon_0 * alpha_mass) * alpha_mass / energy
     angles_list = []
 
-    emittent_radius = 5
+    emittent_radius = 8
     pos_x = -100 * impact_parameter
     vel_x = np.sqrt(2 * energy / alpha_mass)
-
+    np.random.seed()                            #diverso seed per la funzione random.rand() ad ogni run del programma
 
     for k in range(N_particles):
         
@@ -67,11 +70,11 @@ def scattering_angles_curve_fit(angles_list, N_particles):
 
     def theor_distribution(angles_list, N_particles, alpha):
 
-        return N_particles / np.power(np.sin(angles_list), alpha)
+        return N_particles / np.power(np.sin(angles_list / 2), alpha)
 
     counts, bins = np.histogram(angles_list, bins = 30)   
     bins = bins[1:] - (bins[1] - bins[0]) / 2
-    p, cov = spo.curve_fit(theor_distribution, bins, counts, p0 = [1, 2], sigma = counts)
+    p, cov = spo.curve_fit(theor_distribution, bins, counts, p0 = [1, 4], sigma = counts)
     x  = np.linspace(bins[0], bins[-1], 1000)
     y = theor_distribution(x, p[0], p[1])
 
@@ -96,52 +99,62 @@ def run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass, tau):
 
     return pos_array, vel_array, angles_list, impact_parameter
 
+'''
+Corpo principale del programma
+'''
 
 ## NOTE: parametri di simulazione
-N_particles = 10
+N_particles = 1000
 N_steps = 200
 energy = 5e5 * spc.electron_volt    #energia di 5MeV convertita in Joule
 tau = 9.3e-20                       #secondi
 Ze, Zo = 2, 79                                              #numero atomico di elio (Ze) ed oro (Zo)
 alpha_mass = 2 * spc.proton_mass + 2 * spc.neutron_mass     #massa atomica elio in uma
 
-what_to_do = input('Insert "t" to see the alpha particles trajectories or "a" to see the scattering angles\t')
+what_to_plot = input('Insert "t" to see the alpha particles trajectories or "a" to see the scattering angles:\t')
 
 pos_array, vel_array, angles_list, impact_parameter = run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass, tau)
 x_fit, y_fit = scattering_angles_curve_fit(angles_list, N_particles)
 
-## NOTE: parte del codice dedicata esclusivamente alla rappresentazione grafica
+'''
+Parte del codice dedicata esclusivamente alla rappresentazione grafica
+'''
 
-if what_to_do == 't':
+## NOTE: segmento dedicato alla rappresentazione delle traiettorie delle particelle
+if what_to_plot == 't':
 
     fig = plt.subplots()
     ax = plt.axes(projection = '3d')
-    ax.plot3D(0, 0, 0, marker = 'o', color = '#FFD700')
-
+    ax.plot3D(0, 0, 0, marker = 'o', color = '#FFD700')         #atomo d'oro
+    
     for i in range(N_steps):
         for k in range(N_particles):
 
-            ax.plot3D([pos_array[k, i].x / impact_parameter],[pos_array[k, i].y / impact_parameter], [pos_array[k, i].z / impact_parameter], marker = '.', markersize = .5, color = 'b')
+            ax.plot3D([pos_array[k, i].x / impact_parameter],[pos_array[k, i].y / impact_parameter], [pos_array[k, i].z / impact_parameter], marker = '.', markersize = .3, color = '#39FF14')
 
     ax.set_title('3D Rutherford Experiment')
     ax.set_xlabel('x / impact parameter')
     ax.set_ylabel('y / impact parameter')
     ax.set_zlabel('z / impact parameter')
 
-elif what_to_do == 'a': 
+##NOTE: segmento dedicato ala rappresentazione degli angoli di scattering
+elif what_to_plot == 'a': 
 
         fig, ax = plt.subplots()
         ax.hist(angles_list, histtype = 'step', bins = 30, label = 'Data')
-        ax.set_yscale('log')
+        ax.set_yscale('log')                #scala log per visualizzare meglio alti numeri di conteggi
         ax.set_xlabel('$\\theta$')
         ax.set_ylabel('Counts')
-        ax.set_title('Distribution of the Angles Scattering in 3 dimentions')
-        ax.plot(x_fit, y_fit, label = 'Scattering angles fit', linewidth = 1)
+        ax.set_title('Distribution of the Scattered Angles in 3 dimentions')
+        ax.plot(x_fit, y_fit, label = 'Scattered angles fit', linewidth = 1)
+        plt.legend()
 
+##NOTE: messaggio di inserimento errato del codice what_to_do
 else:
-    print('Wrong code, use "t" to see the trajectories or "a" to see the angles distribution\n')
+    print('WARNING: wrong code, use "t" to see the trajectories or "a" to see the angles distribution\n')
+    exit()
 
+##NOTE: il tempo di simulazione non include l'intervallo necessario a visualizzare il grafico
 print('Time taken by the simulation:\t', time.time() - t_s, 'seconds\n')
 
-plt.legend()
 plt.show()
