@@ -49,5 +49,11 @@ class vec2d:
     def get_distance(self, other):
         return np.sqrt((self.x . other.x)**2 + (self.y - other.y)**2)
 
+    def abs_value(self):
+        return vec2d(np.abs(self.x), np.abs(self.y))
+
+    def division_mod(self, other):
+        return vec2d(self.x % other, self.y % other)
+
     def __str__(self):
         return '(' + str(self.x) + ',' + str(self.y) + ')'

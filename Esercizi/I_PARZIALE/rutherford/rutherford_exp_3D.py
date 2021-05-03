@@ -15,22 +15,23 @@ def init_values(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
 
     pos_array = np.full((N_particles, N_steps), fill_value = v3d.vec3d(0, 0, 0))
     vel_array = np.full((N_particles, N_steps), fill_value = v3d.vec3d(0, 0, 0))
-    impact_parameter = Ze * Zo * spc.e**2 / (4 * np.pi * spc.epsilon_0 * alpha_mass) * alpha_mass / energy
+    inter_distance = Ze * Zo * spc.e**2 / (4 * np.pi * spc.epsilon_0 * alpha_mass) * alpha_mass / energy
     angles_list = []
 
-    emittent_radius = 8
-    pos_x = -100 * impact_parameter
+    emittent_radius = 5
+    pos_x = -100 * inter_distance
     vel_x = np.sqrt(2 * energy / alpha_mass)
+    tau = inter_distance / vel_x
     np.random.seed()                            #diverso seed per la funzione random.rand() ad ogni run del programma
 
     for k in range(N_particles):
         
-        pos_y = emittent_radius * (2 * np.random.rand() - 1) * impact_parameter
-        pos_z = emittent_radius * (2 * np.random.rand() - 1) * impact_parameter
+        pos_y = emittent_radius * (2 * np.random.rand() - 1) * inter_distance
+        pos_z = emittent_radius * (2 * np.random.rand() - 1) * inter_distance
         pos_array[k, 0] = v3d.vec3d(pos_x, pos_y, pos_z)
         vel_array[k, 0] = v3d.vec3d(vel_x, 0, 0)
 
-    return pos_array, vel_array, angles_list, impact_parameter
+    return pos_array, vel_array, angles_list, inter_distance, tau
 
 
 def get_acceleration(pos_array, Ze, Zo, alpha_mass, i):
@@ -81,9 +82,9 @@ def scattering_angles_curve_fit(angles_list, N_particles):
     return x, y
 
 
-def run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass, tau):
+def run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
 
-    pos_array, vel_array, angles_list, impact_parameter = init_values(N_particles, N_steps, Ze, Zo, energy, alpha_mass)
+    pos_array, vel_array, angles_list, inter_distance, tau = init_values(N_particles, N_steps, Ze, Zo, energy, alpha_mass)
     acc = get_acceleration(pos_array, Ze, Zo, alpha_mass, 0)
 
     for i in range(N_steps - 1):
@@ -97,23 +98,22 @@ def run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass, tau):
 
         angles_list.append(vel_array[i, 0].get_angle(vel_array[i, -1], 'rad'))
 
-    return pos_array, vel_array, angles_list, impact_parameter
+    return pos_array, vel_array, angles_list, inter_distance
 
 '''
 Corpo principale del programma
 '''
 
 ## NOTE: parametri di simulazione
-N_particles = 1000
+N_particles = 100000
 N_steps = 200
-energy = 5e5 * spc.electron_volt    #energia di 5MeV convertita in Joule
-tau = 9.3e-20                       #secondi
+energy = 5e5 * spc.electron_volt    #energia di 5MeV convertita in Joule                 #secondi
 Ze, Zo = 2, 79                                              #numero atomico di elio (Ze) ed oro (Zo)
 alpha_mass = 2 * spc.proton_mass + 2 * spc.neutron_mass     #massa atomica elio in uma
 
 what_to_plot = input('Insert "t" to see the alpha particles trajectories or "a" to see the scattering angles:\t')
 
-pos_array, vel_array, angles_list, impact_parameter = run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass, tau)
+pos_array, vel_array, angles_list, inter_distance = run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass)
 x_fit, y_fit = scattering_angles_curve_fit(angles_list, N_particles)
 
 '''
@@ -130,7 +130,7 @@ if what_to_plot == 't':
     for i in range(N_steps):
         for k in range(N_particles):
 
-            ax.plot3D([pos_array[k, i].x / impact_parameter],[pos_array[k, i].y / impact_parameter], [pos_array[k, i].z / impact_parameter], marker = '.', markersize = .3, color = '#39FF14')
+            ax.plot3D([pos_array[k, i].x / inter_distance],[pos_array[k, i].y / inter_distance], [pos_array[k, i].z / inter_distance], marker = '.', markersize = .3, color = '#39FF14')
 
     ax.set_title('3D Rutherford Experiment')
     ax.set_xlabel('x / impact parameter')
