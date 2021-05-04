@@ -5,7 +5,9 @@ import scipy.optimize as spo
 import vec2d as v2d
 import time
 
-t_s = time.time()
+t_s = time.time()       #tempo di inizio simulazione
+
+'''Funzioni necessarie ad eseguire il programma'''
 
 ## NOTE: funzione che inizializza le posizioni degli atomi
 def init_values(N_particles, N_steps, initial_T, mass_of_argon, L_box, status):
@@ -125,25 +127,26 @@ def run_lennard_jones2D(N_particles, N_steps, initial_T, mass_of_argon, L_box, t
 
 '''Main del programma'''
 
-## NOTE: costanti della simulazione
+## NOTE: parametri di simulazione
 mass_of_argon = 39.948      #amu
 epsilon = .0103             
 sigma = 3.4                 #Angstron
 L_box = 10                  #Angstron
-
-## NOTE: variabili della simulazione
 #N_particles = int(input('Inserire il numero di particelle da far interagire\n'))
 N_particles = 3
 N_steps = 1000
 tau = .01                    #femtosecondi
 initial_T = 300              #Kelvin
 
+##NOTE: parametro per inizializzare le velocità random o mono-modali
 status = 'rand' #input('Select initial random velocities "r" or mono-modal initial velocities "m":\t')
 
 ##NOTE: funzione di run del programma
 pos_array, vel_array = run_lennard_jones2D(N_particles, N_steps, initial_T, mass_of_argon, L_box, tau, status)
 
-##NOTE: parte dedicata alla rappresentazione grafica
+
+'''parte del programma dedicata alla rappresentazione grafica'''
+
 fig, ax = plt.subplots()
 
 for i in range(N_steps):
@@ -155,6 +158,7 @@ ax.set_title('Lennard-Jones Interactions for Argon')
 ax.set_xlabel('x (Å)')
 ax.set_ylabel('y (Å)')
 
+##NOTE: il tempo di simulazione non include l'intervallo necessario a visualizzare il grafico
 print('Time taken by the simulation:', time.time() - t_s, 'seconds')
 
 plt.show()

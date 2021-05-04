@@ -7,10 +7,9 @@ import time
 
 t_s = time.time()       #tempo di inizio simulazione
 
-'''
-Funzioni necessarie ad eseguire il programma
-'''
+'''Funzioni necessarie ad eseguire il programma'''
 
+## NOTE: funzione che inizializza le posizioni delle particelle alpha
 def init_values(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
 
     pos_array = np.full((N_particles, N_steps), fill_value = v3d.vec3d(0, 0, 0))
@@ -34,6 +33,7 @@ def init_values(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
     return pos_array, vel_array, angles_list, inter_distance, tau
 
 
+##NOTE: funzione che recupera le accelerazioni relative delle particelle step per step
 def get_acceleration(pos_array, Ze, Zo, alpha_mass, i):
 
     acc_list = []
@@ -45,6 +45,7 @@ def get_acceleration(pos_array, Ze, Zo, alpha_mass, i):
     return acc_list
 
 
+##NOTE: funzione che aggiorna le posizioni con velocity-verlet
 def update_pos(pos_array, vel_array, acc, N_particles, tau, i):
 
     pos_temp_list = []
@@ -56,6 +57,7 @@ def update_pos(pos_array, vel_array, acc, N_particles, tau, i):
     return pos_temp_list
 
 
+##NOTE: funzione che aggiorna le velocità con velocity-verlet
 def update_vel(vel_array, acc, acc_new, N_particles, tau, i):
 
     vel_temp_list = []
@@ -67,6 +69,7 @@ def update_vel(vel_array, acc, acc_new, N_particles, tau, i):
     return vel_temp_list
 
 
+##NOTE: funzione che fitta la distribuzione attesa degli angoli di scattering
 def scattering_angles_curve_fit(angles_list, N_particles):
 
     def theor_distribution(angles_list, N_particles, alpha):
@@ -82,6 +85,7 @@ def scattering_angles_curve_fit(angles_list, N_particles):
     return x, y
 
 
+##NOTE: funzione di run del programma
 def run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
 
     pos_array, vel_array, angles_list, inter_distance, tau = init_values(N_particles, N_steps, Ze, Zo, energy, alpha_mass)
@@ -100,12 +104,11 @@ def run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
 
     return pos_array, vel_array, angles_list, inter_distance
 
-'''
-Corpo principale del programma
-'''
+
+'''Main del programma'''
 
 ## NOTE: parametri di simulazione
-N_particles = 100000
+N_particles = 20
 N_steps = 200
 energy = 5e5 * spc.electron_volt    #energia di 5MeV convertita in Joule                 #secondi
 Ze, Zo = 2, 79                                              #numero atomico di elio (Ze) ed oro (Zo)
@@ -113,12 +116,14 @@ alpha_mass = 2 * spc.proton_mass + 2 * spc.neutron_mass     #massa atomica elio 
 
 what_to_plot = input('Insert "t" to see the alpha particles trajectories or "a" to see the scattering angles:\t')
 
+##NOTE: funzione di run del programma
 pos_array, vel_array, angles_list, inter_distance = run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass)
+
+##NOTE: funzione di fit degli angoli
 x_fit, y_fit = scattering_angles_curve_fit(angles_list, N_particles)
 
-'''
-Parte del codice dedicata esclusivamente alla rappresentazione grafica
-'''
+
+'''Parte del programma dedicata alla rappresentazione grafica'''
 
 ## NOTE: segmento dedicato alla rappresentazione delle traiettorie delle particelle
 if what_to_plot == 't':
@@ -130,12 +135,12 @@ if what_to_plot == 't':
     for i in range(N_steps):
         for k in range(N_particles):
 
-            ax.plot3D([pos_array[k, i].x / inter_distance],[pos_array[k, i].y / inter_distance], [pos_array[k, i].z / inter_distance], marker = '.', markersize = .3, color = '#39FF14')
+            ax.plot3D([pos_array[k, i].x / inter_distance],[pos_array[k, i].y / inter_distance], [pos_array[k, i].z / inter_distance], marker = '.', markersize = .3, color = '#9932CC')
 
     ax.set_title('3D Rutherford Experiment')
-    ax.set_xlabel('x / impact parameter')
-    ax.set_ylabel('y / impact parameter')
-    ax.set_zlabel('z / impact parameter')
+    ax.set_xlabel('x / interaction distance')
+    ax.set_ylabel('y / interaction distance')
+    ax.set_zlabel('z / interaction distance')
 
 ##NOTE: segmento dedicato ala rappresentazione degli angoli di scattering
 elif what_to_plot == 'a': 
@@ -156,5 +161,6 @@ else:
 
 ##NOTE: il tempo di simulazione non include l'intervallo necessario a visualizzare il grafico
 print('Time taken by the simulation:\t', time.time() - t_s, 'seconds\n')
+print('Number of particels:', N_particles)
 
 plt.show()
