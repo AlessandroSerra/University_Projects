@@ -82,7 +82,7 @@ def scattering_angles_curve_fit(angles_list, N_particles):
     x  = np.linspace(bins[0], bins[-1], 1000)
     y = theor_distribution(x, p[0], p[1])
 
-    return x, y
+    return x, y, p[1]
 
 
 ##NOTE: funzione di run del programma
@@ -108,19 +108,19 @@ def run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
 '''Main del programma'''
 
 ## NOTE: parametri di simulazione
-N_particles = 20
+N_particles = 10000 #int(input('Inserire in numero di particelle da far interagire:\t'))
 N_steps = 200
 energy = 5e5 * spc.electron_volt    #energia di 5MeV convertita in Joule                 #secondi
 Ze, Zo = 2, 79                                              #numero atomico di elio (Ze) ed oro (Zo)
 alpha_mass = 2 * spc.proton_mass + 2 * spc.neutron_mass     #massa atomica elio in uma
 
-what_to_plot = input('Insert "t" to see the alpha particles trajectories or "a" to see the scattering angles:\t')
+what_to_plot = 'a' #input('Insert "t" to see the alpha particles trajectories or "a" to see the scattering angles:\t')
 
 ##NOTE: funzione di run del programma
 pos_array, vel_array, angles_list, inter_distance = run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass)
 
 ##NOTE: funzione di fit degli angoli
-x_fit, y_fit = scattering_angles_curve_fit(angles_list, N_particles)
+x_fit, y_fit, sin_exp = scattering_angles_curve_fit(angles_list, N_particles)
 
 
 '''Parte del programma dedicata alla rappresentazione grafica'''
@@ -145,6 +145,7 @@ if what_to_plot == 't':
 ##NOTE: segmento dedicato ala rappresentazione degli angoli di scattering
 elif what_to_plot == 'a': 
 
+        #print('Esponente sperimentale del seno: ', sin_exp)
         fig, ax = plt.subplots()
         ax.hist(angles_list, histtype = 'step', bins = 30, label = 'Data')
         ax.set_yscale('log')                #scala log per visualizzare meglio alti numeri di conteggi
@@ -160,7 +161,7 @@ else:
     exit()
 
 ##NOTE: il tempo di simulazione non include l'intervallo necessario a visualizzare il grafico
-print('Time taken by the simulation:\t', time.time() - t_s, 'seconds\n')
-print('Number of particels:', N_particles)
+print('Time taken by the simulation:\t', time.time() - t_s, 'seconds')
+print('Number of particels:\t', N_particles)
 
 plt.show()

@@ -27,4 +27,6 @@ plt.legend()
 p, cov = spo.curve_fit(f, x, y,  p0 = [A, tau, omega], sigma = sigma * np.ones(100))
 ax.plot(x_new, f(x_new, p[0], p[1], p[2]), label = 'fit')
 
+print(p[1])
+
 plt.show()
