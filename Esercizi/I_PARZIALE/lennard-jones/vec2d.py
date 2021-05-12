@@ -52,7 +52,7 @@ class vec2d:
     def abs_value(self):
         return vec2d(np.abs(self.x), np.abs(self.y))
 
-    def division_mod(self, other):
+    def __mod__(self, other):
         return vec2d(self.x % other, self.y % other)
 
     def __str__(self):

@@ -10,13 +10,14 @@ t_s = time.time()       #tempo di inizio simulazione
 '''Funzioni necessarie ad eseguire il programma'''
 
 ## NOTE: funzione che inizializza le posizioni degli atomi
-def init_values(N_particles, N_steps, initial_T, mass_of_argon, L_box, status):
+def init_values(N_particles, N_steps, initial_T, mass_of_argon, L_box, sigma, status):
 
     pos_array = np.full((N_particles, N_steps), fill_value = v2d.vec2d(0, 0))
     vel_array = np.full((N_particles, N_steps), fill_value = v2d.vec2d(0, 0))
     
     np.random.seed()
     pos_y = np.linspace(0, L_box, N_particles)      #posizioni lungo y egualmente distanziate
+    v_max = np.sqrt(spc.Boltzmann * initial_T / (mass_of_argon * spc.e))
 
     for i in range(N_particles):
 
@@ -26,17 +27,19 @@ def init_values(N_particles, N_steps, initial_T, mass_of_argon, L_box, status):
 
             P = np.random.rand()
             R = 2 * np.random.rand() - 1
-            vel_x = P * np.sqrt(spc.Boltzmann * initial_T / (mass_of_argon * spc.e))
-            vel_y = R * np.sqrt(spc.Boltzmann * initial_T / (mass_of_argon * spc.e))
+            vel_x = P * v_max
+            vel_y = R * v_max
 
         else:   #caso di inizializzazione con velocità mono-modali dipendenti dalla temperatura del sistema
             
-            vel_x = np.sqrt(spc.Boltzmann * initial_T / (mass_of_argon * spc.e))
-            vel_y = np.sqrt(spc.Boltzmann * initial_T / (mass_of_argon * spc.e))
+            vel_x = v_max
+            vel_y = v_max
 
         vel_array[i, 0] = v2d.vec2d(vel_x, vel_y)
 
-    return pos_array, vel_array
+    tau = (sigma / v_max) * 1e-2
+
+    return pos_array, vel_array, tau
 
 
 ##NOTE: funzione che recupera le distanze relative delle particelle step per step
@@ -80,7 +83,7 @@ def get_acceleration(dist_array, epsilon, sigma, i):
     return acc_list
 
 
-##NOTE: funzione che aggiorna le posizioni con velocity-verlet
+##NOTE: funzione che aggiorna le posizioni con velocity-verlet\
 def update_pos(pos_array, vel_array, acc, N_particles, L_box, tau, i):
 
     pos_list = []
@@ -105,10 +108,10 @@ def update_vel(vel_array, acc, acc_new, N_particles, tau, i):
 
 
 ##NOTE: funzione di run del programma
-def run_lennard_jones2D(N_particles, N_steps, initial_T, mass_of_argon, L_box, tau, status):
+def run_lennard_jones2D(N_particles, N_steps, initial_T, mass_of_argon, L_box, status):
 
     ##NOTE: primo ciclo di inizialzzazione
-    pos_array, vel_array = init_values(N_particles, N_steps, initial_T, mass_of_argon, L_box, status)
+    pos_array, vel_array, tau = init_values(N_particles, N_steps, initial_T, mass_of_argon, L_box, sigma, status)
     dist_array = get_distance(pos_array, N_particles, 0)
     acc = get_acceleration(dist_array, epsilon, sigma, 0)
 
@@ -131,18 +134,17 @@ def run_lennard_jones2D(N_particles, N_steps, initial_T, mass_of_argon, L_box, t
 mass_of_argon = 39.948      #amu
 epsilon = .0103             
 sigma = 3.4                 #Angstron
-L_box = 10                  #Angstron
+L_box = 50                  #Angstron
 #N_particles = int(input('Inserire il numero di particelle da far interagire\n'))
 N_particles = 3
 N_steps = 1000
-tau = .01                    #femtosecondi
 initial_T = 300              #Kelvin
 
 ##NOTE: parametro per inizializzare le velocità random o mono-modali
 status = 'rand' #input('Select initial random velocities "r" or mono-modal initial velocities "m":\t')
 
 ##NOTE: funzione di run del programma
-pos_array, vel_array = run_lennard_jones2D(N_particles, N_steps, initial_T, mass_of_argon, L_box, tau, status)
+pos_array, vel_array = run_lennard_jones2D(N_particles, N_steps, initial_T, mass_of_argon, L_box, status)
 
 
 '''parte del programma dedicata alla rappresentazione grafica'''
