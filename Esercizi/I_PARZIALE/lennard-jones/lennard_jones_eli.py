@@ -62,8 +62,8 @@ def run_md(dt, N_steps, T, initial_pos, L, mass_argon, epsilon, sigma):
 
 
 dt = 0.01
-N_steps = 1000
-N_part = 64
+N_steps = 5
+N_part = 3
 T=300 #K
 L=11 #A
 
@@ -78,7 +78,9 @@ ax.set_xlabel("Step") #t
 ax.set_ylabel("Positions (Angstrom)")
 ax.legend()
 
-
+for i in range(N_part):
+    for k in range(N_steps):
+        print('velocità atomi:', velocities[k, i])
 
 
 

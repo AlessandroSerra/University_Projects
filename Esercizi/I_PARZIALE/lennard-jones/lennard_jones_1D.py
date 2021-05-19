@@ -11,7 +11,7 @@ L_box = 20                  #Angstron
 ## NOTE: variabili della simulazione
 #N_particles = int(input('Inserire il numero di particelle da far interagire\n'))
 N_particles = 3
-N_steps = 100
+N_steps = 5
 tau = .1                    #femtosecondi
 initial_T = 300             #Kelvin
 
@@ -53,7 +53,6 @@ def update_pos(x, v, a, tau):
 
 def update_vel(v, a, anew, tau):
 
-    print(v)
     return v + 0.5 * (a + anew) * tau
 
 ## NOTE: funzione che fa girare velocity-verlet
@@ -61,6 +60,7 @@ def run_md(tau, N_steps, initial_T, x):
 
     positions = np.zeros((N_steps, N_particles))
     v = init_velocity(initial_T, N_particles)
+    print('velocità atomi:',v)
     a = get_accelerations(x)
     for i in range(N_steps):
         x = update_pos(x, v, a, tau)
@@ -84,3 +84,5 @@ ax.set_xlabel(r'Step')
 ax.set_ylabel(r'$x$-Position/Å')
 plt.legend(frameon=False)
 plt.show()
+
+print
