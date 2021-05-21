@@ -117,9 +117,10 @@ def velocity_curve_fit(initial_T, vel_array, mass_of_argon):
 
         velocity_list.append(vel_array[k ,-1]*vel_array[k, -1])        #fa la differenza dell'ultima velocità dalla prima
 
+    fit_f = lambda v, C: M_B_distribution(v, initial_T, mass_of_argon, C)
     counts, bins = np.histogram(velocity_list, bins = 30)
     bins = bins[1:] - (bins[1] - bins[0]) / 2
-    p, cov = spo.curve_fit(M_B_distribution, bins, counts, p0 = [30])
+    p, cov = spo.curve_fit(fit_f, bins, counts, p0 = [30])
     x_fit = np.linspace(bins[0], bins[-1], 1000)
     y_fit = M_B_distribution(x_fit, initial_T, mass_of_argon, p[0])
 
@@ -170,9 +171,8 @@ def run_lennard_jones2D(N_particles, N_steps, initial_T, mass_of_argon, L_box):
 ## NOTE: parametri di simulazione
 mass_of_argon = 39.948      #amu
 epsilon = .0103             
-sigma = 3.4                 #Angstron
-L_box = 10                  #Angstron
-#N_particles = int(input('Inserire il numero di particelle da far interagire\n'))
+sigma = 3.46                #Angstrom
+L_box = 10                  #Angstrom
 N_particles = 2
 N_steps = 1000
 initial_T = 300              #Kelvin

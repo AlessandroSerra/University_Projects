@@ -15,6 +15,10 @@ class vec2d:
         modulo = self.mod()
         return vec2d(self.x / modulo, self.y / modulo)
 
+    ##NOTE: funzione che definizce l'opporsto di un vettore
+    def __neg__(self):
+        return vec2d(-self.x, -self.y)
+
     ##NOTE: funzione che definisce la somma tra vettori
     def __add__(self, other):
         return vec2d(self.x + other.x, self.y + other.y)

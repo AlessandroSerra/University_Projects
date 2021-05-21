@@ -1,4 +1,3 @@
-from operator import pos
 import numpy as np
 import matplotlib.pyplot as plt 
 import scipy.constants as spc
@@ -18,7 +17,7 @@ def init_values(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
     inter_distance = Ze * Zo * spc.e**2 / (4 * np.pi * spc.epsilon_0) / energy
     angles_list = []
 
-    emittent_radius = 100 * inter_distance
+    emittent_radius = 20 * inter_distance
     pos_x = -100 * inter_distance
     vel_x = np.sqrt(2 * energy / alpha_mass)
     tau = inter_distance / vel_x
@@ -36,7 +35,7 @@ def init_values(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
             vel_array[k, 0] = v3d.vec3d(vel_x, 0, 0)
             k += 1                                                                  #incrementa SOLO se la posizione generata random sta dentro il cerchio
 
-    return pos_array, vel_array, angles_list, inter_distance, tau
+    return pos_array, vel_array, angles_list, inter_distance, emittent_radius, tau
 
 
 ##NOTE: funzione che recupera le accelerazioni relative delle particelle step per step
@@ -91,31 +90,66 @@ def scattering_angles_curve_fit(angles_list):
     return x_fit, y_fit, p[0], p[1], cov
 
 
-##NOTE: funzione che mostra i risultati ottenuti
-def plot_and_show_everything(pos_array, angles_list, inter_distance, x_fit, y_fit, N0, alpha, cov):
+##NOTE: funzione di run del programma
+def run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
 
-    what_to_plot = input('Insert "t" to see the alpha particles trajectories or "a" to see the scattering angles:\t')
+    pos_array, vel_array, angles_list, inter_distance, emittent_radius, tau = init_values(N_particles, N_steps, Ze, Zo, energy, alpha_mass)
+    acc = get_acceleration(pos_array, Ze, Zo, alpha_mass, 0)
 
-    ## NOTE: segmento dedicato alla rappresentazione delle traiettorie delle particelle
-    if what_to_plot == 't':
+    for i in range(N_steps - 1):
 
-        fig = plt.subplots()
-        ax = plt.axes(projection = '3d')
-        ax.plot3D(0, 0, 0, marker = 'o', color = '#FFD700')         #atomo d'oro
+        pos_array[:, i + 1] = update_pos(pos_array, vel_array, acc, N_particles, tau, i)
+        acc_new = get_acceleration(pos_array, Ze, Zo, alpha_mass, i + 1)
+        vel_array[:, i + 1] = update_vel(vel_array, acc, acc_new, N_particles, tau, i)
+        acc = acc_new
+
+    for i in range(N_particles):
+
+        angles_list.append(vel_array[i, 0].get_angle(vel_array[i, -1], 'rad'))
+
+    return pos_array, vel_array, angles_list, inter_distance, emittent_radius
+
+
+'''Main del programma'''
+
+## NOTE: parametri di simulazione
+N_particles = 20 #int(input('Inserire in numero di particelle da far interagire:\t'))
+N_steps = 200
+energy = 5e5 * spc.electron_volt    #energia di 5MeV convertita in Joule                 #secondi
+Ze, Zo = 2, 79                                          #numero atomico di elio (Ze) ed oro (Zo)
+alpha_mass = 2 * spc.proton_mass + 2 * spc.neutron_mass     #massa atomica elio in uma
+
+what_to_plot = input('Insert "t" to see the alpha particles trajectories or "a" to see the scattering angles:\t')
+
+##NOTE: funzione di run del programma
+pos_array, vel_array, angles_list, inter_distance, emittent_radius = run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass)
+
+##NOTE: funzione di fit degli angoli
+x_fit, y_fit, alpha, N0, cov = scattering_angles_curve_fit(angles_list)
+
+
+'''Parte del programma dedicata alla rappresentazione grafica'''
+
+## NOTE: segmento dedicato alla rappresentazione delle traiettorie delle particelle
+if what_to_plot == 't':
+
+    fig = plt.subplots()
+    ax = plt.axes(projection = '3d')
+    ax.plot3D(0, 0, 0, marker = 'o', color = '#FFD700')         #atomo d'oro
     
-        for k in range(pos_array.shape[0]):
+    for k in range(pos_array.shape[0]):
 
-            ax.plot3D([(pos_array[k, i].x / inter_distance) for i in range(pos_array.shape[1])],
-            [(pos_array[k, i].y / inter_distance) for i in range(pos_array.shape[1])], 
-            [pos_array[k, i].z / inter_distance for i in range(pos_array.shape[1])])
+        ax.plot3D([(pos_array[k, i].x / inter_distance) for i in range(pos_array.shape[1])],
+        [(pos_array[k, i].y / inter_distance) for i in range(pos_array.shape[1])], 
+        [pos_array[k, i].z / inter_distance for i in range(pos_array.shape[1])], color = '#9932CC')
 
-        ax.set_title('3D Rutherford Experiment')
-        ax.set_xlabel('x / interaction distance')
-        ax.set_ylabel('y / interaction distance')
-        ax.set_zlabel('z / interaction distance')
+    ax.set_title('3D Rutherford Experiment')
+    ax.set_xlabel('x / interaction distance')
+    ax.set_ylabel('y / interaction distance')
+    ax.set_zlabel('z / interaction distance')
 
-    ##NOTE: segmento dedicato ala rappresentazione degli angoli di scattering
-    elif what_to_plot == 'a': 
+##NOTE: segmento dedicato ala rappresentazione degli angoli di scattering
+elif what_to_plot == 'a': 
 
         print('N0:\t', N0)
         print('Esponente del seno:\t', alpha)
@@ -130,51 +164,14 @@ def plot_and_show_everything(pos_array, angles_list, inter_distance, x_fit, y_fi
         ax.plot(x_fit, y_fit, label = 'Scattered angles fit', linewidth = 1)
         plt.legend()
 
-    ##NOTE: messaggio di inserimento errato del codice what_to_do
-    else:
-        print('WARNING: wrong code, use "t" to see the trajectories or "a" to see the angles distribution\n')
-        exit()
+##NOTE: messaggio di inserimento errato del codice what_to_do
+else:
+    print('WARNING: wrong code, use "t" to see the trajectories or "a" to see the angles distribution\n')
+    exit()
 
-    print('Number of particels:\t', pos_array.shape[0])
+print('Number of particels:\t', pos_array.shape[0])
 
-    ##NOTE: il tempo di simulazione non include l'intervallo necessario a visualizzare il grafico
-    print('Time taken by the simulation:\t', time.time() - t_s, 'seconds')
+##NOTE: il tempo di simulazione non include l'intervallo necessario a visualizzare il grafico
+print('Time taken by the simulation:\t', time.time() - t_s, 'seconds')
 
-    plt.show()
-
-
-##NOTE: funzione di run del programma
-def run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
-
-    pos_array, vel_array, angles_list, inter_distance, tau = init_values(N_particles, N_steps, Ze, Zo, energy, alpha_mass)
-    acc = get_acceleration(pos_array, Ze, Zo, alpha_mass, 0)
-
-    for i in range(N_steps - 1):
-
-        pos_array[:, i + 1] = update_pos(pos_array, vel_array, acc, N_particles, tau, i)
-        acc_new = get_acceleration(pos_array, Ze, Zo, alpha_mass, i + 1)
-        vel_array[:, i + 1] = update_vel(vel_array, acc, acc_new, N_particles, tau, i)
-        acc = acc_new
-
-    for i in range(N_particles):
-
-        angles_list.append(vel_array[i, 0].get_angle(vel_array[i, -1], 'rad'))
-
-    ##NOTE: funzione di fit degli angoli
-    x_fit, y_fit, alpha, N0, cov = scattering_angles_curve_fit(angles_list) 
-
-    plot_and_show_everything(pos_array, angles_list, inter_distance, x_fit, y_fit, N0, alpha, cov)
-
-
-'''Main del programma'''
-
-## NOTE: parametri di simulazione
-N_particles = 100 #int(input('Inserire in numero di particelle da far interagire:\t'))
-N_steps = 200
-energy = 5e5 * spc.electron_volt    #energia di 5MeV convertita in Joule                 #secondi
-Ze, Zo = 2, 79                                          #numero atomico di elio (Ze) ed oro (Zo)
-alpha_mass = 2 * spc.proton_mass + 2 * spc.neutron_mass     #massa atomica elio in uma
-
-
-##NOTE: funzione di run del programma
-run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass)
+plt.show()
