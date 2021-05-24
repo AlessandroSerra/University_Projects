@@ -75,6 +75,9 @@ def lj_energy(r, epsilon, sigma):
         r, epsilon, sigma) + attractive_energy(
         r, epsilon, sigma)
 
+x = np.linspace(2.9, 5, 100)
+y = np.linspace(-.10, .20, 100)
+
 r = np.linspace(3, 5, 100)
 plt.plot(r, attractive_energy(r, 0.0103, 3.4),
          label='Attractive')
@@ -82,7 +85,9 @@ plt.plot(r, repulsive_energy(r, 0.0103, 3.4),
          label='Repulsive')
 plt.plot(r, lj_energy(r, 0.0103, 3.4), 
          label='Lennard-Jones')
+plt.plot(x, [0 for i in range(len(x))], color = 'black', linewidth = .6)
+plt.plot([3 for i in range(len(y))], y, color = 'black', linewidth = .6)
 plt.xlabel(r'$r$/Å')
-plt.ylabel(r'$E$/eV')
+plt.ylabel(r'$V_{LJ}$/eV')
 plt.legend(frameon=False)
 plt.show()

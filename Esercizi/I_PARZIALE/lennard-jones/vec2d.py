@@ -59,12 +59,15 @@ class vec2d:
     ##NOTE: funzione che restituisce la distanza tra due vettori 
     def get_distance(self, other):
         return np.sqrt((self.x - other.x)**2 + (self.y - other.y)**2)
-        
+    
+    ##NOTE: funzione che restituisce il valore assoluto delle componenti di un vettore
     def abs_value(self):
         return vec2d(np.abs(self.x), np.abs(self.y))
 
+    ##NOTE: funzione che definisce l'operazione di modulo per un vettore
     def __mod__(self, other):
         return vec2d(self.x % other, self.y % other)
 
     def __str__(self):
         return '(' + str(self.x) + ',' + str(self.y) + ')'
+

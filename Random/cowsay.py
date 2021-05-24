@@ -1,3 +1,3 @@
-import cowsay
+import cowsay as c
 
-#say('ciaoneeee')
+c.cowsay.cow('ciaone')

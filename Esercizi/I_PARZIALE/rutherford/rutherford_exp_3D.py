@@ -30,7 +30,7 @@ def init_values(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
         pos_y = emittent_radius * (2 * np.random.rand() - 1)
         pos_z = emittent_radius * (2 * np.random.rand() - 1)
 
-        if np.sqrt(pos_y**2 + pos_z**2) <= (emittent_radius):      #condizione di raggio cilindrico
+        if np.sqrt(pos_y**2 + pos_z**2) <= (emittent_radius):      #condizione di raggio cilindrico-
 
             pos_array[k, 0] = v3d.vec3d(pos_x, pos_y, pos_z)
             vel_array[k, 0] = v3d.vec3d(vel_x, 0, 0)
@@ -107,7 +107,7 @@ def plot_and_show_everything(pos_array, angles_list, inter_distance, x_fit, y_fi
 
             ax.plot3D([(pos_array[k, i].x / inter_distance) for i in range(pos_array.shape[1])],
             [(pos_array[k, i].y / inter_distance) for i in range(pos_array.shape[1])], 
-            [pos_array[k, i].z / inter_distance for i in range(pos_array.shape[1])])
+            [pos_array[k, i].z / inter_distance for i in range(pos_array.shape[1])], color = 'purple')
 
         ax.set_title('3D Rutherford Experiment')
         ax.set_xlabel('x / interaction distance')
@@ -169,9 +169,9 @@ def run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
 '''Main del programma'''
 
 ## NOTE: parametri di simulazione
-N_particles = 100 #int(input('Inserire in numero di particelle da far interagire:\t'))
+N_particles = 100000 
 N_steps = 200
-energy = 5e5 * spc.electron_volt    #energia di 5MeV convertita in Joule                 #secondi
+energy = 5e5 * spc.electron_volt    #energia di 5MeV convertita in Joule                 
 Ze, Zo = 2, 79                                          #numero atomico di elio (Ze) ed oro (Zo)
 alpha_mass = 2 * spc.proton_mass + 2 * spc.neutron_mass     #massa atomica elio in uma
 
