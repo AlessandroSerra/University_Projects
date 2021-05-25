@@ -10,23 +10,31 @@ t_s = t.time()       #tempo di inizio simulazione
 '''Funzioni necessarie ad eseguire il programma'''
 
 ## NOTE: funzione che inizializza le posizioni degli atomi
-def init_values(N_particles, N_steps, initial_T, mass_of_argon, L_box, sigma):
+def init_values(N_particles, N_steps, initial_T, mass_of_argon, L_box, sigma, status):
 
     pos_array = np.full((N_particles, N_steps), fill_value = v2d.vec2d(0, 0))
     vel_array = np.full((N_particles, N_steps), fill_value = v2d.vec2d(0, 0))
+    v_max = np.sqrt(2 * spc.Boltzmann * initial_T / (mass_of_argon * spc.electron_volt))
     
     np.random.seed()
     M = 2 * (np.random.rand(N_particles) - 1)
     N = 2 * (np.random.rand(N_particles) - 1)
-    v_max = np.sqrt(2 * spc.Boltzmann * initial_T / (mass_of_argon * spc.electron_volt))
 
-    pos_array[:, 0] = np.array([v2d.vec2d(i + 20, j + 20) * sigma * 1.1 for i in range(8) for j in range(8)])
+    pos_array[:, 0] = np.array([v2d.vec2d(i + 10, j + 10) * sigma * 1.1 for i in range(int(np.sqrt(N_particles))) for j in range(int(np.sqrt(N_particles)))])
 
-    for i in range(N_particles):
+    if status == 'r':
+        for i in range(N_particles):
 
-        vel_x = M[i] * v_max
-        vel_y = N[i] * v_max
-        vel_array[i, 0] = v2d.vec2d(vel_x, vel_y)   #angstrom / femtosecondi
+            vel_x = M[i] * v_max
+            vel_y = N[i] * v_max
+            vel_array[i, 0] = v2d.vec2d(vel_x, vel_y)   #angstrom / femtosecondi
+
+    else:
+        for i in range(N_particles):
+
+            vel_x = M[0] * v_max
+            vel_y = M[0] * v_max
+            vel_array[i, 0] = v2d.vec2d(vel_x, vel_y)
 
     tau = (sigma / v_max) * 1e-4        #femtosecondi
 
@@ -90,7 +98,7 @@ def update_vel(vel_array, acc, acc_new, N_particles, tau, i):
 
 
 ##NOTE: funzione per il fit delle velocità secondo Maxwell-Boltzmann
-def velocity_curve_fit(vel_array):
+def velocity_curve_fit(vel_array, status):
 
     def M_B_distribution(v, C, A):
 
@@ -100,7 +108,11 @@ def velocity_curve_fit(vel_array):
 
     for k in range(N_particles):
 
-        velocity_list.append((vel_array[k, -1]).mod())
+        if status == 'r':
+            velocity_list.append((vel_array[k, -1]).mod())
+
+        else:
+            velocity_list.append((vel_array[k, -1] - vel_array[k, 0]).mod())
     
     velocity_list = np.array(velocity_list)
 
@@ -110,7 +122,7 @@ def velocity_curve_fit(vel_array):
     x_fit = np.linspace(bins[0], bins[-1], 1000)
     y_fit = M_B_distribution(x_fit, p[0], p[1])
 
-    return velocity_list, x_fit, y_fit
+    return velocity_list, p[0], p[1], x_fit, y_fit
 
 
 ##NOTE: funzione che calcola lo spostamento quadratico medio
@@ -132,55 +144,28 @@ def get_mean_quadratic_deviation(pos_array, N_particles, N_steps):
 ##NOTE:
 def get_diffusion_coeff(mean_quadratic_deviation, tau):
 
-    x_fit = np.array(range(N_steps)) * tau
-    q, m = np.polyfit(x_fit, mean_quadratic_deviation, 1, cov = True)
+    def fit_func(B, x):
 
-    return x_fit, q, m
+        return B * x
 
+    x_fit = np.array([tau * i for i in range(int(N_steps / 2), N_steps)])
+    y_fit = np.array(mean_quadratic_deviation[int(N_steps/2): N_steps])
+    p = spo.curve_fit(fit_func, x_fit, y_fit)
+    p = np.polyfit(x_fit, y_fit, 1)
 
-##NOTE: funzione che esegue il plot delle quantitò ricavate durante il run
-def plot_and_show_everything(pos_array, velocity_list, time_list, x_fit, y_fit, mean_quadratic_deviation, coeff_retta, self_diffusion_par, N_particles, N_steps, what_to_plot):
+    return x_fit, p[0], p[1]
 
-    fig, ax = plt.subplots()
-
-    if what_to_plot == 't':
-
-        for i in range(N_particles):
-
-            ax.plot([pos_array[i, step].x for step in range(N_steps)], [pos_array[i, step].y for step in range(N_steps)], linewidth = 1.5)
-
-        ax.set_title('Lennard-Jones Interactions for Argon')
-        ax.set_xlabel('x (Å)')
-        ax.set_ylabel('y (Å)')
-
-    elif what_to_plot == 'v':
-        
-        ax.hist(velocity_list, histtype = 'step', bins = 10, label = 'Data')
-        ax.set_xlabel('Velocity')
-        ax.set_ylabel('Counts')
-        ax.set_title('Distribution of the Argon Atoms Velocities')
-        ax.plot(x_fit, y_fit, label = 'Maxwell-Boltzmann Velocity fit', linewidth = 1)
-
-    elif what_to_plot == 'rms':
-
-        ax.plot(mean_quadratic_deviation, time_list, marker = 'x')
-        #y_diff_fit = [coeff_retta for i in range(len(x_diff_fit))] + self_diffusion_par * x_diff_fit
-        #ax.plot(x_diff_fit, y_diff_fit)
-        print('parametro di autodiffusione:\t', self_diffusion_par)
-
-    ##NOTE: il tempo di simulazione non include l'intervallo necessario a visualizzare il grafico
-    print('Time taken by the simulation:', t.time() - t_s, 'seconds')
-
-    plt.legend(frameon = False)
-    plt.show()
 
 
 ##NOTE: funzione di run del programma
-def run_lennard_jones2D(N_particles, N_steps, initial_T, mass_of_argon, L_box, what_to_plot):
+def run_lennard_jones2D(N_particles, N_steps, initial_T, mass_of_argon, L_box):
+
+    what_to_plot = 'rmd' #input('Insert "t" to see the alpha particles trajectories, "v"to see the velocity distributiion or "rmd" to see the root mean deviation:\t')
+    status = 'r' #input('Insert "r" for random initial velocities or "m" for mono-modal velocities:\t')
 
     ##NOTE: primo ciclo di inizialzzazione
     time_list = [0]
-    pos_array, vel_array, tau = init_values(N_particles, N_steps, initial_T, mass_of_argon, L_box, sigma)
+    pos_array, vel_array, tau = init_values(N_particles, N_steps, initial_T, mass_of_argon, L_box, sigma, status)
     acc = get_acceleration(pos_array, N_particles, epsilon, sigma, 0)
 
     ##NOTE: ciclo che gestisce il run del programma per N-1 passi
@@ -193,25 +178,68 @@ def run_lennard_jones2D(N_particles, N_steps, initial_T, mass_of_argon, L_box, w
         acc = acc_new
         time_list.append(tau * (i + 1))
 
-    velocity_list, x_fit, y_fit = velocity_curve_fit(vel_array)
+    velocity_list, C, A, x_fit, y_fit = velocity_curve_fit(vel_array, status)
 
     mean_quadratic_deviation = get_mean_quadratic_deviation(pos_array, N_particles, N_steps)
-    x_diff_fit, coeff_retta, self_diffusion_par = get_diffusion_coeff(mean_quadratic_deviation, tau)
+    x_diff_fit, self_diffusion_par, coeff_retta = get_diffusion_coeff(mean_quadratic_deviation, tau)
 
-    plot_and_show_everything(pos_array, velocity_list, time_list, x_fit, y_fit, mean_quadratic_deviation, coeff_retta, self_diffusion_par, N_particles, N_steps, what_to_plot)
+    fig, ax = plt.subplots()
+
+    if what_to_plot == 't':
+
+        for i in range(N_particles):
+
+            ax.plot([pos_array[i, step].x for step in range(N_steps)], [pos_array[i, step].y for step in range(N_steps)], linewidth = 2)
+
+        ax.set_title('Lennard-Jones Interactions for Argon')
+        ax.set_xlabel('x (Å)')
+        ax.set_ylabel('y (Å)')
+
+    elif what_to_plot == 'v':
+        
+        print('Coefficiente moltiplicativo:\t', C)
+        print('Coefficiente esponenziale:\t', A)
+
+        ax.hist(velocity_list, histtype = 'step', bins = 10, label = 'Data')
+        ax.plot(x_fit, y_fit, label = 'Maxwell-Boltzmann Velocity fit', linewidth = 1)
+        ax.set_xlabel('Velocity')
+        ax.set_ylabel('Counts')
+        ax.set_title('Distribution of the Argon Atoms Velocities')
+
+    elif what_to_plot == 'rmd':
+
+        print('coeff diff:', self_diffusion_par)
+        coeff_retta = np.array([coeff_retta for i in range(len(x_diff_fit))])
+        y_diff_fit = coeff_retta + self_diffusion_par * x_diff_fit
+
+        ax.plot(time_list, mean_quadratic_deviation)
+        ax.plot(x_diff_fit, y_diff_fit)
+        ax.set_xlabel('Time')
+        ax.set_ylabel('RMD')
+
+        print('parametro di autodiffusione:\t', self_diffusion_par / 4)
+
+    ##NOTE: il tempo di simulazione non include l'intervallo necessario a visualizzare il grafico
+    print('Time taken by the simulation:', t.time() - t_s, 'seconds')
+
+    plt.legend(frameon = False)
+    plt.show()
+
+
 
 '''Main del programma'''
 
 ## NOTE: parametri di simulazione
 mass_of_argon = 39.948      #amu
-epsilon = .0103             
+epsilon = .0103             #eV
 sigma = 3.46                #Angstrom
 N_particles = 64
-L_box = 200      #consizione che tiene le particelle 
+L_box = 150                 #angstrom
 N_steps = 1000
 initial_T = 300              #Kelvin
 
-what_to_plot = 'rms' #input('Insert "t" to see the alpha particles trajectories or "a" to see the scattering angles:\t')
-
 ##NOTE: funzione di run del programma
-run_lennard_jones2D(N_particles, N_steps, initial_T, mass_of_argon, L_box, what_to_plot)
+run_lennard_jones2D(N_particles, N_steps, initial_T, mass_of_argon, L_box)
+
+
+#0.423 \pm 0.003 cm^2 / s coeff diff argon in argon
