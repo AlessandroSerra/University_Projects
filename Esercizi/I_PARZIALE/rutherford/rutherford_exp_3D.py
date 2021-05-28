@@ -82,19 +82,38 @@ def scattering_angles_curve_fit(angles_list):
 
         return N0 / np.power(np.sin(angles_list / 2), alpha)        #N0 parametro del fin NON numero di particelle inziale
 
-    counts, bins = np.histogram(angles_list, bins = 30)   
+    counts, bins = np.histogram(angles_list, bins = 50)   
     bins = bins[1:] - (bins[1] - bins[0]) / 2
-    p, cov = spo.curve_fit(theor_distribution, bins, counts, p0 = [4, 1e-5])
+    p, cov = spo.curve_fit(theor_distribution, bins, counts, p0 = [4, 1e-3])
     x_fit  = np.linspace(bins[0], bins[-1], 1000)
     y_fit = theor_distribution(x_fit, p[0], p[1])
 
     return x_fit, y_fit, p[0], p[1], cov
 
 
-##NOTE: funzione che mostra i risultati ottenuti
-def plot_and_show_everything(pos_array, angles_list, inter_distance, x_fit, y_fit, N0, alpha, cov):
+##NOTE: funzione di run del programma
+def run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
 
-    what_to_plot = input('Insert "t" to see the alpha particles trajectories or "a" to see the scattering angles:\t')
+    pos_array, vel_array, angles_list, inter_distance, tau = init_values(N_particles, N_steps, Ze, Zo, energy, alpha_mass)
+    acc = get_acceleration(pos_array, Ze, Zo, alpha_mass, 0)
+
+    for i in range(N_steps - 1):
+
+        pos_array[:, i + 1] = update_pos(pos_array, vel_array, acc, N_particles, tau, i)
+        acc_new = get_acceleration(pos_array, Ze, Zo, alpha_mass, i + 1)
+        vel_array[:, i + 1] = update_vel(vel_array, acc, acc_new, N_particles, tau, i)
+        acc = acc_new
+
+    for i in range(N_particles):
+
+        angles_list.append(vel_array[i, 0].get_angle(vel_array[i, -1], 'rad'))
+
+
+    what_to_plot = 'a' #input('Insert "t" to see the alpha particles trajectories or "a" to see the scattering angles:\t')
+
+    ##NOTE: funzione di fit degli angoli
+    x_fit, y_fit, alpha, N0, cov = scattering_angles_curve_fit(angles_list) 
+
 
     ## NOTE: segmento dedicato alla rappresentazione delle traiettorie delle particelle
     if what_to_plot == 't':
@@ -122,14 +141,15 @@ def plot_and_show_everything(pos_array, angles_list, inter_distance, x_fit, y_fi
         print('Covarianza:\n', cov)
 
         fig, ax = plt.subplots()
-        ax.hist(angles_list, histtype = 'step', bins = 30, label = 'Data')
+        ax.hist(angles_list, histtype = 'step', bins = 50, label = 'Angles')
+        ax.plot(x_fit, y_fit, label = 'Scattered angles fit', linewidth = 1)
         ax.set_yscale('log')                #scala log per visualizzare meglio alti numeri di conteggi
         ax.set_xlabel('$\\theta$')
         ax.set_ylabel('Counts')
         ax.set_title('Distribution of the Scattered Angles in 3 dimentions')
-        ax.plot(x_fit, y_fit, label = 'Scattered angles fit', linewidth = 1)
-        plt.legend()
 
+        plt.legend(frameon = False)
+        
     ##NOTE: messaggio di inserimento errato del codice what_to_do
     else:
         print('WARNING: wrong code, use "t" to see the trajectories or "a" to see the angles distribution\n')
@@ -141,29 +161,6 @@ def plot_and_show_everything(pos_array, angles_list, inter_distance, x_fit, y_fi
     print('Time taken by the simulation:\t', time.time() - t_s, 'seconds')
 
     plt.show()
-
-
-##NOTE: funzione di run del programma
-def run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
-
-    pos_array, vel_array, angles_list, inter_distance, tau = init_values(N_particles, N_steps, Ze, Zo, energy, alpha_mass)
-    acc = get_acceleration(pos_array, Ze, Zo, alpha_mass, 0)
-
-    for i in range(N_steps - 1):
-
-        pos_array[:, i + 1] = update_pos(pos_array, vel_array, acc, N_particles, tau, i)
-        acc_new = get_acceleration(pos_array, Ze, Zo, alpha_mass, i + 1)
-        vel_array[:, i + 1] = update_vel(vel_array, acc, acc_new, N_particles, tau, i)
-        acc = acc_new
-
-    for i in range(N_particles):
-
-        angles_list.append(vel_array[i, 0].get_angle(vel_array[i, -1], 'rad'))
-
-    ##NOTE: funzione di fit degli angoli
-    x_fit, y_fit, alpha, N0, cov = scattering_angles_curve_fit(angles_list) 
-
-    plot_and_show_everything(pos_array, angles_list, inter_distance, x_fit, y_fit, N0, alpha, cov)
 
 
 '''Main del programma'''

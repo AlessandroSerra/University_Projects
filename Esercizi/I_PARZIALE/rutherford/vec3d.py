@@ -16,6 +16,10 @@ class vec3d:
         modulo = self.mod()
         return vec3d(self.x / modulo, self.y / modulo, self.z / modulo)
 
+    ##NOTE: funzione che definisce l'opposto di un vettore
+    def __neg__(self):
+        return vec3d(-self.x, -self.y, -self.z)
+
     ##NOTE: funzione che definisce la somma tra vettori
     def __add__(self, other):
         return vec3d(self.x + other.x, self.y + other.y, self.z + other.z)
@@ -48,6 +52,14 @@ class vec3d:
 
     def __str__(self):
         return '(' + str(self.x) + ',' + str(self.y) + ',' + str(self.z) + ')'
+
+    ##NOTE: funzione che restituisce la distanza tra due vettori 
+    def get_distance(self, other):
+        return np.sqrt((self.x - other.x)**2 + (self.y - other.y)**2 + (self.z - other)**2)
+    
+    ##NOTE: funzione che restituisce il valore assoluto delle componenti di un vettore
+    def abs_value(self):
+        return vec3d(np.abs(self.x), np.abs(self.y), np.abs(self.z))
 
     ##NOTE: funzione che resituisce l'angolo tra due vettori
     def get_angle(self, other, unit):
