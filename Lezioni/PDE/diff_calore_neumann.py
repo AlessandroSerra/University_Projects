@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 N=100
 tstep1=3000
@@ -18,11 +19,10 @@ for time in range(1,tstep1):
         
         Temp[0,time]=Temp[1,time] 
         Temp[99,time]=Temp[98,time]
-        
-fig = plt.subplots()
-ax = plt.axes(projection="3d")
-#gridx , gridy = plt.meshgrid(range(tstep1),range(N)) 
-ax.plot_surface(gridx,gridy,Temp,cmap=cm.coolwarm,
-vmax=250,linewidth=0,rstride=2, cstride=100)
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection = '3d')
+gridx , gridy = np.meshgrid(range(tstep1),range(N)) 
+ax.plot_surface(gridx,gridy,Temp,cmap=plt.cm.coolwarm, vmax=250,linewidth=0,rstride=2, cstride=100)
 
 plt.show()
