@@ -16,9 +16,10 @@ def Fourier(y, T, t):
 
     return freq, FT, fast_FT
 
-def InvFourier(y, nu_max, nu):
+def InvFourier(y, T, nu):
 
     N = len(y)
+    nu_max = N / T
     t = np.array([i / nu_max for i in range(N)])
     delta_nu = nu[1] - nu[0]
 
@@ -30,24 +31,27 @@ def InvFourier(y, nu_max, nu):
 
     return t, inv_FT, fast_IFFT
 
-T, N = 1, 1000
-t = np.linspace(0, T, N)
-y = np.sin(2 * np.pi * 50 * t)
+
+prices = np.loadtxt('/Users/aleserra/Università/Fisica Computazionale/University_Projects/Esercizi/II_parziale/Trasformate di Fourier/dow_jones.txt')
+y = prices
+N = len(prices)
+t = np.array([i for i in range(N)])
+T = t[-1]
 
 nu, FT, fast_FFT = Fourier(y, T, t)
-new_t, inv_FT, fast_IFFT = InvFourier(FT, N / T, nu)
+new_t, inv_FT, fast_IFFT = InvFourier(FT, T, nu)
 
 fig, ax = plt.subplots()
 ax.plot(t, y, label = 'Original data')
 ax.plot(new_t, inv_FT.real, label = 'Inverse Fourier transform')
-ax.plot(new_t, fast_IFFT.real, label = 'Fast Inverse Fourier transform')
+#ax.plot(new_t, fast_IFFT.real, label = 'Fast Inverse Fourier transform')
 ax.set_xlabel('t(s)')
 ax.set_ylabel('f(t)')
 ax.legend()
 
 fig1, ax1 = plt.subplots()
 ax1.plot(nu, np.abs(FT), label = 'Fourier transform')
-ax1.plot(nu, np.abs(fast_FFT), label = 'Fast Fourier transform')
+#ax1.plot(nu, np.abs(fast_FFT), label = 'Fast Fourier transform')
 ax1.set_xlabel('$\\nu (Hz)$')
 ax1.set_ylabel('$\mathcal{F}(\\nu)$')
 ax1.legend()

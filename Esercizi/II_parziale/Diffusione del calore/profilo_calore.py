@@ -94,14 +94,14 @@ def run_calor_profile(N_t, N_x, init_T, init_A, wavelen, dt, k, h):
         ax.legend(frameon = False)
 
     fig1, ax1 = plt.subplots()
-    ax1.plot(time, A, marker = '.', markersize = .1, linewidth = 0, label = 'Ampiezze in funzione del tempo')
+    ax1.plot(time, A, marker = '.', markersize = .1, linewidth = .1, label = 'Ampiezze in funzione del tempo')
     ax1.plot(time, y_fit, label = 'Fit delle ampiezze in funzione del tempo')
     ax1.legend(frameon = False)
 
     fig2 = plt.figure()
     ax2 = fig2.add_subplot(111, projection = '3d')
     gridx , gridy = np.meshgrid(range(0, N_x), range(0, N_t)) 
-    img = ax2.plot_surface(gridx, gridy, T, cmap = plt.cm.coolwarm, linewidth = 0, vmin = 290, vmax = 310 , rstride = 2, cstride = 100)
+    img = ax2.plot_surface(gridx, gridy, T, cmap = plt.cm.coolwarm, linewidth = 0, rstride = 2, cstride = 100)
     ax2.set_xlabel('x (m)')
     ax2.set_ylabel('y (m)')
     ax2.set_zlabel('T (K)')
