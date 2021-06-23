@@ -28,14 +28,15 @@ def Inv_Fourier_trans(y, T, nu):
     nu_max = N / T
     t = np.array([i / nu_max for i in range(N)])
     delta_nu = nu[1] - nu[0]
-    print(delta_nu)
 
     inv_FT = np.array(
         [np.sum(y * np.exp(- 2j * np.pi * t[i] * nu)) for i in range(N)]
     ) * delta_nu
 
     y2 = y.copy()
-    y2[:int(N*0.02)] = 0
+    for i in range(N):
+        if np.abs(nu[i]) > 0.02 * nu_max:
+            y2[i] = 0
 
     inv_FT2 = np.array(
         [np.sum(y2 * np.exp(- 2j * np.pi * t[i] * nu)) for i in range(N)]
@@ -50,6 +51,7 @@ def run_Dow_Jones_Analisys(time, prices):
     N = len(prices)
     T = time[-1]                #non è periodica quindi prendiamo l'ultimo valore del tempo come periodo
 
+    windowed_prices = np.hanning(N) * prices
     F_trans, nu = Fourier_trans(prices, T, time)
     inv_F_trans, inv_F_trans2, new_t = Inv_Fourier_trans(F_trans, T, nu)
 
@@ -77,7 +79,7 @@ def run_Dow_Jones_Analisys(time, prices):
 
     fig2, ax2 = plt.subplots()
     ax2.plot(time, prices, label = 'Original data')
-    ax2.plot(new_t[1:], np.abs(inv_F_trans2)[1:], label = 'Inverse Fourier transform, only first 2%')
+    ax2.plot(new_t[10:-5], np.abs(inv_F_trans2)[10:-5], label = 'Inverse Fourier transform, only first 2%')
     ax2.set_xlabel('Time')
     ax2.set_ylabel('Prices')
     ax2.set_ylim(9000, 14500)
