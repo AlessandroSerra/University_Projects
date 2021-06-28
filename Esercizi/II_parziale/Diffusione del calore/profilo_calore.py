@@ -53,7 +53,7 @@ def solve(N_t, N_x, T, k, h, dt, condizione = 'neu'):
     return T
 
 ##NOTE: funzione per fittare l'ampiezza
-def profile_width_fit(T, init_A, L, dt, N_t, wavelen):
+def profile_width_fit(T, init_A, h, k, dt, N_t, wavelen):
 
     def width_func(t, A0, tau, c):  #funzione da fittare
 
@@ -66,7 +66,7 @@ def profile_width_fit(T, init_A, L, dt, N_t, wavelen):
     A = np.amax(T, axis = 1)        #restituisce il valore max per ogni colonna
     time = np.array([dt * i for i in range(N_t)])   #array dei tempi
 
-    p, cov = spo.curve_fit(width_func, time, A, p0 = [init_A, L**2 / time[-1], 300])
+    p, cov = spo.curve_fit(width_func, time, A, p0 = [init_A, h**2 / k, 300])
     y_fit = width_func(time, p[0], p[1], p[2])
 
     print('Tempo di rilassamento:\t', p[1], 's')
@@ -82,12 +82,12 @@ def run_calor_profile(N_t, N_x, init_T, init_A, wavelen, dt, k, h):
     T_0 = init_profile(X, N_x, N_t, init_T, init_A, wavelen)
     T = solve(N_t, N_x, T_0, k, h, dt, 'neu')
 
-    y_fit, time, A = profile_width_fit(T, init_A, L, dt, N_t, wavelen)
+    y_fit, time, A = profile_width_fit(T, init_A, h, k, dt, N_t, wavelen)
 
     ##NOTE: rappresentazione grafica dei profili ti temperatura al variare del tempo
     fig, ax = plt.subplots()
 
-    for n in range(0, N_t, int(N_t / 5)):       #loop per visualizzare solo 5 profili di temperatura al fronte dei 1000
+    for n in range(0, N_t, int(N_t / 5)):       #loop per visualizzare solo 5 profili di temperatura
 
         ax.plot(X, T[n], label = 't = %1.2f s' % (n * dt))   
 
@@ -133,20 +133,20 @@ Main del programma
 init_T = 300        #K
 init_A = 10         #K
 L = 100             #m
-wavelen = L / 4     #m
-k = 50             #m**2/s
+wavelen = L / 2     #m
+k = 0.5             #m**2/s
 h = 1               #m
 dt = 0.5 * h**2 / (2 * k)      #s
 N_x = int(L / h)               #divisioni della sbarretta
 
 if wavelen == L:
-    N_t = 3600
+    N_t = 3500
 
 elif wavelen == L / 2:
     N_t = 1000
 
 else:
-    N_t = 200
+    N_t = 250
 
 ##NOTE: funzione di run del programma
 run_calor_profile(N_t, N_x, init_T, init_A, wavelen, dt, k, h)
