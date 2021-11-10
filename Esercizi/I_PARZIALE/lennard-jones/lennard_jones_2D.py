@@ -233,9 +233,9 @@ def run_lennard_jones2D(N_particles, N_steps, initial_T, mass_of_argon, L_box):
 mass_of_argon = 39.948                      #amu
 epsilon = .0103                             #eV
 sigma = 3.46                                #Angstrom
-N_particles = 64
+N_particles = 25
 L_box = N_particles * sigma                 #Angstrom
-N_steps = 10000              
+N_steps = 1000              
 initial_T = 300                             #Kelvin
 
 ##NOTE: funzione di run del programma

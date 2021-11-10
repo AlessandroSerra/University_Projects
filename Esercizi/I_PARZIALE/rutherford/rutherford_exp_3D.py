@@ -18,7 +18,7 @@ def init_values(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
     inter_distance = Ze * Zo * spc.e**2 / (4 * np.pi * spc.epsilon_0) / energy
     angles_list = []
 
-    emittent_radius = 100 * inter_distance
+    emittent_radius = 10 * inter_distance
     pos_x = -100 * inter_distance
     vel_x = np.sqrt(2 * energy / alpha_mass)
     tau = inter_distance / vel_x
@@ -109,7 +109,7 @@ def run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
         angles_list.append(vel_array[i, 0].get_angle(vel_array[i, -1], 'rad'))
 
 
-    what_to_plot = 'a' #input('Insert "t" to see the alpha particles trajectories or "a" to see the scattering angles:\t')
+    what_to_plot = 't' #input('Insert "t" to see the alpha particles trajectories or "a" to see the scattering angles:\t')
 
     ##NOTE: funzione di fit degli angoli
     x_fit, y_fit, alpha, N0, cov = scattering_angles_curve_fit(angles_list) 
@@ -166,7 +166,7 @@ def run_rutherford_exp3D(N_particles, N_steps, Ze, Zo, energy, alpha_mass):
 '''Main del programma'''
 
 ## NOTE: parametri di simulazione
-N_particles = 100000 
+N_particles = 25 
 N_steps = 200
 energy = 5e5 * spc.electron_volt    #energia di 5MeV convertita in Joule                 
 Ze, Zo = 2, 79                                          #numero atomico di elio (Ze) ed oro (Zo)
